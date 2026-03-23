@@ -1,4 +1,4 @@
-package co.com.bancolombia.usecase.user;
+package co.com.bancolombia.usecase.security;
 
 import co.com.bancolombia.model.auth.RefreshToken;
 import co.com.bancolombia.model.auth.TokenPair;
@@ -26,7 +26,7 @@ public class RefreshTokenUseCase {
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Token revocado")))
                 .filter(t -> t.getExpiraEn().isAfter(LocalDateTime.now()))
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Token expirado")))
-                .flatMap(oldToken -> revokeAndRenew(oldToken));
+                .flatMap(this::revokeAndRenew);
     }
 
     private Mono<TokenPair> revokeAndRenew(RefreshToken oldToken) {

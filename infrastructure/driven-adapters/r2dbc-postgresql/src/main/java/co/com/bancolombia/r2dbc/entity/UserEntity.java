@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
@@ -16,9 +18,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class UserEntity {
+public class UserEntity implements Persistable<String> {
     @Id
     private String id;
+
+    @Transient
+    @Builder.Default
+    private boolean newRecord = false;
+
+    @Override
+    public boolean isNew() {
+        return newRecord;
+    }
     private String fullName;
     private String email;
     private String passwordHash;

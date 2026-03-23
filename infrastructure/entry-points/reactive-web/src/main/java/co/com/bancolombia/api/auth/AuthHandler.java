@@ -1,15 +1,20 @@
 package co.com.bancolombia.api.auth;
 
-import co.com.bancolombia.usecase.user.LoginUseCase;
-import co.com.bancolombia.usecase.user.LogoutUseCase;
-import co.com.bancolombia.usecase.user.RefreshTokenUseCase;
-import co.com.bancolombia.usecase.user.RequestPasswordResetUseCase;
-import co.com.bancolombia.usecase.user.ResetPasswordUseCase;
+import co.com.bancolombia.api.dto.ErrorResponse;
+import co.com.bancolombia.api.dto.LoginRequest;
+import co.com.bancolombia.api.dto.MessageResponse;
+import co.com.bancolombia.api.dto.PasswordResetRequest;
+import co.com.bancolombia.api.dto.RefreshRequest;
+import co.com.bancolombia.api.dto.ResetPasswordRequest;
+import co.com.bancolombia.api.dto.TokenResponse;
+import co.com.bancolombia.usecase.security.LoginUseCase;
+import co.com.bancolombia.usecase.security.LogoutUseCase;
+import co.com.bancolombia.usecase.security.RefreshTokenUseCase;
+import co.com.bancolombia.usecase.security.RequestPasswordResetUseCase;
+import co.com.bancolombia.usecase.security.ResetPasswordUseCase;
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -18,6 +23,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
+
 
 @Component
 @RequiredArgsConstructor
@@ -36,7 +42,7 @@ public class AuthHandler {
                 .flatMap(req -> loginUseCase.execute(req.email(), req.password(),
                         request.headers().firstHeader("User-Agent")))
                 .flatMap(pair -> ServerResponse.ok()
-                        .bodyValue(new TokenResponse(pair.getAccessToken(), pair.getRefreshToken())))
+                        .bodyValue(new TokenResponse(pair.accessToken(), pair.refreshToken())))
                 .onErrorResume(IllegalArgumentException.class, e ->
                         ServerResponse.status(HttpStatus.UNAUTHORIZED).bodyValue(new ErrorResponse(e.getMessage())))
                 .onErrorResume(IllegalStateException.class, e ->
@@ -48,7 +54,7 @@ public class AuthHandler {
                 .doOnNext(this::validate)
                 .flatMap(req -> refreshTokenUseCase.execute(req.refreshToken()))
                 .flatMap(pair -> ServerResponse.ok()
-                        .bodyValue(new TokenResponse(pair.getAccessToken(), pair.getRefreshToken())))
+                        .bodyValue(new TokenResponse(pair.accessToken(), pair.refreshToken())))
                 .onErrorResume(IllegalArgumentException.class, e ->
                         ServerResponse.status(HttpStatus.UNAUTHORIZED).bodyValue(new ErrorResponse(e.getMessage())));
     }
@@ -83,17 +89,9 @@ public class AuthHandler {
     }
 
     private void validate(Object dto) {
-        Set violations = validator.validate(dto);
+        Set<ConstraintViolation<Object>> violations = validator.validate(dto);
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
     }
-
-    public record LoginRequest(@NotBlank @Email String email, @NotBlank String password) {}
-    public record RefreshRequest(@NotBlank String refreshToken) {}
-    public record PasswordResetRequest(@NotBlank @Email String email) {}
-    public record ResetPasswordRequest(@NotBlank String token, @NotBlank @Size(min = 8) String newPassword) {}
-    public record TokenResponse(String accessToken, String refreshToken) {}
-    public record MessageResponse(String message) {}
-    public record ErrorResponse(String message) {}
 }

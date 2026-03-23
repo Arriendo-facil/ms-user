@@ -1,4 +1,4 @@
-package co.com.bancolombia.usecase.user;
+package co.com.bancolombia.usecase.security;
 
 import co.com.bancolombia.model.auth.gateways.PasswordResetRepository;
 import co.com.bancolombia.model.user.gateways.PasswordEncoder;

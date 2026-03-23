@@ -19,7 +19,7 @@ public class SecurityConfig {
 
     /**
      * Genera un par de claves RSA en cada arranque.
-     * IMPORTANTE: para producción, reemplazar con claves persistentes
+     * IMPORTANTE: para producción, reemplazar con cl aves persistentes
      * cargadas desde un KeyStore o gestor de secretos (Vault, AWS Secrets Manager).
      */
     @Bean

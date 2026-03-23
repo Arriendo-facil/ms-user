@@ -36,3 +36,7 @@ adapters:
     schema: public
     username: postgres
     password: postgres
+
+springdoc:
+  use-fn-handler-mapping: true
+  packages-to-scan: co.com.bancolombia

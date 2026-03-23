@@ -1,0 +1,44 @@
+package co.com.bancolombia.config;
+
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.servers.Server;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@OpenAPIDefinition(
+    info = @Info(
+        title = "ms-user — Microservicio de Usuarios",
+        version = "1.0.0",
+        description = """
+            API REST reactiva (Spring WebFlux) para la gestión de usuarios y autenticación
+            de la plataforma **Arriendo Fácil**.
+
+            ## Funcionalidades
+            - Registro de nuevos usuarios
+            - Autenticación mediante JWT (RS256)
+            - Renovación y revocación de tokens (refresh token rotation)
+            - Restablecimiento de contraseña por email
+
+            ## Seguridad
+            La validación de tokens JWT es responsabilidad del API Gateway que orquesta
+            este microservicio. Los endpoints no requieren autenticación directa.
+            """,
+        contact = @Contact(
+            name = "Equipo Arriendo Fácil",
+            email = "dev@arriendofacil.co"
+        ),
+        license = @License(
+            name = "Privado — Uso interno",
+            url = "https://arriendofacil.co"
+        )
+    ),
+    servers = {
+        @Server(url = "http://localhost:8080", description = "Servidor local de desarrollo"),
+        @Server(url = "https://api.arriendofacil.co", description = "Servidor de producción")
+    }
+)
+public class OpenApiConfig {
+}

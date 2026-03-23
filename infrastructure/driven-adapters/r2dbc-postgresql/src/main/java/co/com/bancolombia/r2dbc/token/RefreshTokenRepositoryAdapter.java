@@ -1,4 +1,4 @@
-package co.com.bancolombia.r2dbc;
+package co.com.bancolombia.r2dbc.token;
 
 import co.com.bancolombia.model.auth.RefreshToken;
 import co.com.bancolombia.model.auth.gateways.RefreshTokenRepository;

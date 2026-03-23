@@ -1,4 +1,4 @@
-package co.com.bancolombia.r2dbc;
+package co.com.bancolombia.r2dbc.token;
 
 import co.com.bancolombia.r2dbc.entity.RefreshTokenEntity;
 import org.springframework.data.r2dbc.repository.Modifying;

@@ -1,7 +1,8 @@
-package co.com.bancolombia.r2dbc;
+package co.com.bancolombia.r2dbc.user;
 
 import co.com.bancolombia.model.user.User;
 import co.com.bancolombia.model.user.gateways.UserRepository;
+import co.com.bancolombia.r2dbc.entity.UserEntity;
 import co.com.bancolombia.r2dbc.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -16,7 +17,8 @@ public class UserRepositoryAdapter implements UserRepository {
 
     @Override
     public Mono<User> saveUser(User user) {
-        return repository.save(mapper.toUserEntity(user)).map(mapper::toUser);
+        UserEntity entity = mapper.toUserEntity(user).toBuilder().newRecord(true).build();
+        return repository.save(entity).map(mapper::toUser);
     }
 
     @Override
