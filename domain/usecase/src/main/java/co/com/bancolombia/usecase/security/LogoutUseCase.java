@@ -1,6 +1,7 @@
 package co.com.bancolombia.usecase.security;
 
 import co.com.bancolombia.model.auth.gateways.RefreshTokenRepository;
+import co.com.bancolombia.model.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -11,7 +12,7 @@ public class LogoutUseCase {
 
     public Mono<Void> execute(String rawToken) {
         return refreshTokenRepository.findByToken(rawToken)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Token invalido")))
+                .switchIfEmpty(Mono.error(new UnauthorizedException("INVALID_TOKEN", "Token invalido")))
                 .flatMap(token -> refreshTokenRepository.revoke(token.getToken()));
     }
 

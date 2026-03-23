@@ -1,6 +1,8 @@
 package co.com.bancolombia.usecase.security;
 
 import co.com.bancolombia.model.auth.gateways.PasswordResetRepository;
+import co.com.bancolombia.model.exception.NotFoundException;
+import co.com.bancolombia.model.exception.ValidationException;
 import co.com.bancolombia.model.user.gateways.PasswordEncoder;
 import co.com.bancolombia.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +25,10 @@ public class ResetPasswordUseCase {
         String tokenHash = sha256(plainToken);
 
         return passwordResetRepository.findActiveByTokenHash(tokenHash)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Token invalido, expirado o ya utilizado")))
+                .switchIfEmpty(Mono.error(new ValidationException("INVALID_RESET_TOKEN",
+                        "Token invalido, expirado o ya utilizado")))
                 .flatMap(reset -> userRepository.findById(reset.getUserId())
-                        .switchIfEmpty(Mono.error(new IllegalStateException("Usuario no encontrado")))
+                        .switchIfEmpty(Mono.error(new NotFoundException("USER_NOT_FOUND", "Usuario no encontrado")))
                         .flatMap(user -> {
                             var updatedUser = user.toBuilder()
                                     .passwordHash(passwordEncoder.encode(newPassword))

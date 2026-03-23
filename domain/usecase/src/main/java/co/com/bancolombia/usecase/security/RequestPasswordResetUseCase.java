@@ -2,6 +2,7 @@ package co.com.bancolombia.usecase.security;
 
 import co.com.bancolombia.model.auth.PasswordReset;
 import co.com.bancolombia.model.auth.gateways.PasswordResetRepository;
+import co.com.bancolombia.model.exception.NotFoundException;
 import co.com.bancolombia.model.user.gateways.UserRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -26,7 +27,7 @@ public class RequestPasswordResetUseCase {
      */
     public Mono<String> execute(String email) {
         return userRepository.getByEmail(email)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("No existe una cuenta con ese email")))
+                .switchIfEmpty(Mono.error(new NotFoundException("EMAIL_NOT_FOUND", "No existe una cuenta con ese email")))
                 .flatMap(user -> {
                     String plainToken = UUID.randomUUID().toString();
                     String tokenHash = sha256(plainToken);

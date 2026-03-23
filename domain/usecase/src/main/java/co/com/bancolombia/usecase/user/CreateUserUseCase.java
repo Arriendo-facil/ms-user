@@ -1,5 +1,6 @@
 package co.com.bancolombia.usecase.user;
 
+import co.com.bancolombia.model.exception.ConflictException;
 import co.com.bancolombia.model.user.User;
 import co.com.bancolombia.model.user.gateways.PasswordEncoder;
 import co.com.bancolombia.model.user.gateways.UserRepository;
@@ -24,7 +25,8 @@ public class CreateUserUseCase {
     private Mono<User> checkEmailNotRegistered(User user) {
         return userRepository.getByEmail(user.getEmail())
                 .flatMap(existing -> Mono.<User>error(
-                        new IllegalStateException("Ya existe un usuario con el email: " + user.getEmail())
+                        new ConflictException("USER_ALREADY_EXISTS",
+                                "Ya existe un usuario con el email: " + user.getEmail())
                 ))
                 .switchIfEmpty(Mono.just(user));
     }

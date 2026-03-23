@@ -3,6 +3,9 @@ package co.com.bancolombia.usecase.security;
 import co.com.bancolombia.model.auth.RefreshToken;
 import co.com.bancolombia.model.auth.TokenPair;
 import co.com.bancolombia.model.auth.gateways.RefreshTokenRepository;
+import co.com.bancolombia.model.exception.ForbiddenException;
+import co.com.bancolombia.model.exception.NotFoundException;
+import co.com.bancolombia.model.exception.UnauthorizedException;
 import co.com.bancolombia.model.user.User;
 import co.com.bancolombia.model.user.gateways.TokenProvider;
 import co.com.bancolombia.model.user.gateways.UserRepository;
@@ -21,11 +24,11 @@ public class RefreshTokenUseCase {
 
     public Mono<TokenPair> execute(String rawToken) {
         return refreshTokenRepository.findByToken(rawToken)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Token invalido")))
+                .switchIfEmpty(Mono.error(new UnauthorizedException("INVALID_TOKEN", "Token invalido")))
                 .filter(t -> !t.isRevocado())
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Token revocado")))
+                .switchIfEmpty(Mono.error(new UnauthorizedException("TOKEN_REVOKED", "Token revocado")))
                 .filter(t -> t.getExpiraEn().isAfter(LocalDateTime.now()))
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Token expirado")))
+                .switchIfEmpty(Mono.error(new UnauthorizedException("TOKEN_EXPIRED", "Token expirado")))
                 .flatMap(this::revokeAndRenew);
     }
 
@@ -44,9 +47,9 @@ public class RefreshTokenUseCase {
 
         return refreshTokenRepository.revoke(oldToken.getToken())
                 .then(userRepository.findById(oldToken.getUserId()))
-                .switchIfEmpty(Mono.error(new IllegalStateException("Usuario no encontrado")))
+                .switchIfEmpty(Mono.error(new NotFoundException("USER_NOT_FOUND", "Usuario no encontrado")))
                 .filter(User::isActive)
-                .switchIfEmpty(Mono.error(new IllegalStateException("Cuenta desactivada")))
+                .switchIfEmpty(Mono.error(new ForbiddenException("ACCOUNT_DISABLED", "Cuenta desactivada")))
                 .flatMap(user -> Mono.zip(
                         tokenProvider.generateAccessToken(user),
                         refreshTokenRepository.save(newRefreshToken),

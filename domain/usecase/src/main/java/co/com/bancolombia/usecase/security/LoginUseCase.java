@@ -3,6 +3,8 @@ package co.com.bancolombia.usecase.security;
 import co.com.bancolombia.model.auth.RefreshToken;
 import co.com.bancolombia.model.auth.TokenPair;
 import co.com.bancolombia.model.auth.gateways.RefreshTokenRepository;
+import co.com.bancolombia.model.exception.ForbiddenException;
+import co.com.bancolombia.model.exception.UnauthorizedException;
 import co.com.bancolombia.model.user.User;
 import co.com.bancolombia.model.user.gateways.PasswordEncoder;
 import co.com.bancolombia.model.user.gateways.TokenProvider;
@@ -23,11 +25,11 @@ public class LoginUseCase {
 
     public Mono<TokenPair> execute(String email, String rawPassword, String dispositivo) {
         return userRepository.getByEmail(email)
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Credenciales invalidas")))
+                .switchIfEmpty(Mono.error(new UnauthorizedException("INVALID_CREDENTIALS", "Credenciales invalidas")))
                 .filter(User::isActive)
-                .switchIfEmpty(Mono.error(new IllegalStateException("Cuenta desactivada")))
+                .switchIfEmpty(Mono.error(new ForbiddenException("ACCOUNT_DISABLED", "Cuenta desactivada")))
                 .filter(user -> passwordEncoder.matches(rawPassword, user.getPasswordHash()))
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Credenciales invalidas")))
+                .switchIfEmpty(Mono.error(new UnauthorizedException("INVALID_CREDENTIALS", "Credenciales invalidas")))
                 .flatMap(user -> generateTokenPair(user, dispositivo));
     }
 
