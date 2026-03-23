@@ -6,6 +6,7 @@ buildscript {
 		jacocoVersion = '0.8.14'
 		pitestVersion = '1.19.0-rc.3'
         lombokVersion = '1.18.44'
+        mapstructVersion = '1.6.3'
 	}
 }
 
