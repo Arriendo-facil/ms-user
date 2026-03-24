@@ -334,3 +334,7 @@ gradle-app.setting
 # -----
 *.hprof
 build-cache
+
+CLAUDE.md
+.claude/
+Task

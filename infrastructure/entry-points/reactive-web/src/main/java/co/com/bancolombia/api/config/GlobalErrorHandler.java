@@ -9,8 +9,7 @@ import co.com.bancolombia.model.exception.UnauthorizedException;
 import co.com.bancolombia.model.exception.ValidationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ConstraintViolationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
@@ -26,9 +25,8 @@ import java.util.stream.Collectors;
 
 @Component
 @Order(-2)
+@Slf4j
 public class GlobalErrorHandler implements WebExceptionHandler {
-
-    private static final Logger log = LoggerFactory.getLogger(GlobalErrorHandler.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
