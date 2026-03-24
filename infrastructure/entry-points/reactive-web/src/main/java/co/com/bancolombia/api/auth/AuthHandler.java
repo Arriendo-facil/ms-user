@@ -1,5 +1,6 @@
 package co.com.bancolombia.api.auth;
 
+import co.com.bancolombia.api.dto.token.TokenValidationResponse;
 import co.com.bancolombia.api.dto.user.LoginRequest;
 import co.com.bancolombia.api.dto.token.MessageResponse;
 import co.com.bancolombia.api.dto.token.PasswordResetRequest;
@@ -7,11 +8,13 @@ import co.com.bancolombia.api.dto.token.RefreshRequest;
 import co.com.bancolombia.api.dto.token.ResetPasswordRequest;
 import co.com.bancolombia.api.dto.token.TokenResponse;
 import co.com.bancolombia.model.exception.NotFoundException;
+import co.com.bancolombia.model.exception.UnauthorizedException;
 import co.com.bancolombia.usecase.security.LoginUseCase;
 import co.com.bancolombia.usecase.security.LogoutUseCase;
 import co.com.bancolombia.usecase.security.RefreshTokenUseCase;
 import co.com.bancolombia.usecase.security.RequestPasswordResetUseCase;
 import co.com.bancolombia.usecase.security.ResetPasswordUseCase;
+import co.com.bancolombia.usecase.security.ValidateTokenUseCase;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -32,6 +35,7 @@ public class AuthHandler {
     private final RefreshTokenUseCase refreshTokenUseCase;
     private final RequestPasswordResetUseCase requestPasswordResetUseCase;
     private final ResetPasswordUseCase resetPasswordUseCase;
+    private final ValidateTokenUseCase validateTokenUseCase;
     private final Validator validator;
 
     private static final String PASSWORD_RESET_MESSAGE =
@@ -75,6 +79,17 @@ public class AuthHandler {
                 .doOnNext(this::validate)
                 .flatMap(req -> resetPasswordUseCase.execute(req.token(), req.newPassword()))
                 .then(ServerResponse.ok().bodyValue(new MessageResponse("Contraseña actualizada correctamente")));
+    }
+
+    public Mono<ServerResponse> validateToken(ServerRequest request) {
+        String authHeader = request.headers().firstHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Mono.error(new UnauthorizedException("MISSING_TOKEN", "Token no proporcionado"));
+        }
+        String token = authHeader.substring(7);
+        return validateTokenUseCase.execute(token)
+                .flatMap(claims -> ServerResponse.ok()
+                        .bodyValue(new TokenValidationResponse(claims.getUserId())));
     }
 
     private void validate(Object dto) {

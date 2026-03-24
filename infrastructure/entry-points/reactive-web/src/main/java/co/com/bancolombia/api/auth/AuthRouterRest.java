@@ -1,6 +1,7 @@
 package co.com.bancolombia.api.auth;
 
 import co.com.bancolombia.api.dto.common.ErrorResponse;
+import co.com.bancolombia.api.dto.token.TokenValidationResponse;
 import co.com.bancolombia.api.dto.user.LoginRequest;
 import co.com.bancolombia.api.dto.token.MessageResponse;
 import co.com.bancolombia.api.dto.token.PasswordResetRequest;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -209,6 +211,38 @@ public class AuthRouterRest {
             )
         ),
         @RouterOperation(
+            path = "/api/auth/validate",
+            method = RequestMethod.GET,
+            beanClass = AuthHandler.class,
+            beanMethod = "validateToken",
+            operation = @Operation(
+                operationId = "validateToken",
+                summary = "Validar token JWT",
+                description = "Valida un token JWT y retorna los claims del usuario. "
+                            + "Usado principalmente por el API Gateway para autorizar requests entrantes. "
+                            + "El token debe enviarse en el header Authorization como Bearer token.",
+                tags = {"Autenticación"},
+                responses = {
+                    @ApiResponse(
+                        responseCode = "200",
+                        description = "Token válido. Retorna los claims del usuario.",
+                        content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = TokenValidationResponse.class)
+                        )
+                    ),
+                    @ApiResponse(
+                        responseCode = "401",
+                        description = "Token ausente, inválido o expirado",
+                        content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponse.class)
+                        )
+                    )
+                }
+            )
+        ),
+        @RouterOperation(
             path = "/api/auth/password-reset/confirm",
             method = RequestMethod.POST,
             beanClass = AuthHandler.class,
@@ -252,6 +286,7 @@ public class AuthRouterRest {
         return route(POST("/api/auth/login"), authHandler::login)
                 .andRoute(POST("/api/auth/refresh"), authHandler::refresh)
                 .andRoute(POST("/api/auth/logout"), authHandler::logout)
+                .andRoute(GET("/api/auth/validate"), authHandler::validateToken)
                 .andRoute(POST("/api/auth/password-reset/request"), authHandler::requestPasswordReset)
                 .andRoute(POST("/api/auth/password-reset/confirm"), authHandler::resetPassword);
     }
