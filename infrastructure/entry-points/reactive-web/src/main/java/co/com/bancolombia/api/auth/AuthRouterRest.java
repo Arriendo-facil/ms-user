@@ -1,12 +1,12 @@
 package co.com.bancolombia.api.auth;
 
-import co.com.bancolombia.api.dto.ErrorResponse;
-import co.com.bancolombia.api.dto.LoginRequest;
-import co.com.bancolombia.api.dto.MessageResponse;
-import co.com.bancolombia.api.dto.PasswordResetRequest;
-import co.com.bancolombia.api.dto.RefreshRequest;
-import co.com.bancolombia.api.dto.ResetPasswordRequest;
-import co.com.bancolombia.api.dto.TokenResponse;
+import co.com.bancolombia.api.dto.common.ErrorResponse;
+import co.com.bancolombia.api.dto.user.LoginRequest;
+import co.com.bancolombia.api.dto.token.MessageResponse;
+import co.com.bancolombia.api.dto.token.PasswordResetRequest;
+import co.com.bancolombia.api.dto.token.RefreshRequest;
+import co.com.bancolombia.api.dto.token.ResetPasswordRequest;
+import co.com.bancolombia.api.dto.token.TokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

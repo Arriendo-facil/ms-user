@@ -1,4 +1,4 @@
-package co.com.bancolombia.api.dto;
+package co.com.bancolombia.api.dto.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
@@ -75,12 +75,4 @@ public class CreateUserDto {
         requiredMode = Schema.RequiredMode.NOT_REQUIRED
     )
     private String country;
-
-    @Schema(
-        description = "Indica si el email ya fue verificado. Normalmente false al registrarse.",
-        example = "false",
-        defaultValue = "false",
-        requiredMode = Schema.RequiredMode.NOT_REQUIRED
-    )
-    private boolean emailVerified;
 }

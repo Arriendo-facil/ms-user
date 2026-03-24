@@ -1,4 +1,4 @@
-package co.com.bancolombia.api.dto;
+package co.com.bancolombia.api.dto.token;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

@@ -1,6 +1,6 @@
 package co.com.bancolombia.api.config;
 
-import co.com.bancolombia.api.dto.ErrorResponse;
+import co.com.bancolombia.api.dto.common.ErrorResponse;
 import co.com.bancolombia.model.exception.ConflictException;
 import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.exception.ForbiddenException;

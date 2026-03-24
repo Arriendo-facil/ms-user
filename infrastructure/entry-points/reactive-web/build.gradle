@@ -12,10 +12,4 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.6'
     testImplementation 'org.springframework.security:spring-security-test'
     implementation 'io.micrometer:micrometer-registry-prometheus'
-
-    // Cucumber BDD
-    testImplementation 'io.cucumber:cucumber-java:7.20.1'
-    testImplementation 'io.cucumber:cucumber-spring:7.20.1'
-    testImplementation 'io.cucumber:cucumber-junit-platform-engine:7.20.1'
-    testImplementation 'org.junit.platform:junit-platform-suite:1.11.4'
 }
