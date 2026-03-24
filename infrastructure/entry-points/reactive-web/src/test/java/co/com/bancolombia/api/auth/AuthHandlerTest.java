@@ -141,7 +141,7 @@ class AuthHandlerTest {
     }
 
     @Test
-    void validateToken_withValidBearerToken_returns200WithUserId() {
+    void validateToken_withValidBearerToken_returns200() {
         TokenClaims claims = TokenClaims.builder().userId("user-1").build();
 
         when(serverRequest.headers()).thenReturn(headers);

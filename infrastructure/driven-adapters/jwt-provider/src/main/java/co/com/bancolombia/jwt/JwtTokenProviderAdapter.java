@@ -1,4 +1,4 @@
-package co.com.bancolombia.config.security;
+package co.com.bancolombia.jwt;
 
 import co.com.bancolombia.model.auth.TokenClaims;
 import co.com.bancolombia.model.exception.UnauthorizedException;
@@ -11,6 +11,7 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -20,9 +21,12 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtTokenProviderAdapter implements TokenProvider {
+
+    private static final String EXPECTED_ISSUER = "ms-user";
 
     private final RSAPrivateKey rsaPrivateKey;
     private final RSAPublicKey rsaPublicKey;
@@ -36,7 +40,7 @@ public class JwtTokenProviderAdapter implements TokenProvider {
 
             JWTClaimsSet claims = new JWTClaimsSet.Builder()
                     .subject(user.getEmail())
-                    .issuer("ms-user")
+                    .issuer(EXPECTED_ISSUER)
                     .issueTime(Date.from(now))
                     .expirationTime(Date.from(expiry))
                     .jwtID(UUID.randomUUID().toString())
@@ -64,7 +68,12 @@ public class JwtTokenProviderAdapter implements TokenProvider {
 
                 JWTClaimsSet claims = jwt.getJWTClaimsSet();
 
-                if (claims.getExpirationTime().before(new Date())) {
+                if (!EXPECTED_ISSUER.equals(claims.getIssuer())) {
+                    throw new UnauthorizedException("INVALID_TOKEN", "Token inválido");
+                }
+
+                Date expiration = claims.getExpirationTime();
+                if (expiration == null || expiration.before(new Date())) {
                     throw new UnauthorizedException("TOKEN_EXPIRED", "Token expirado");
                 }
 
@@ -74,6 +83,7 @@ public class JwtTokenProviderAdapter implements TokenProvider {
             } catch (UnauthorizedException e) {
                 throw e;
             } catch (Exception e) {
+                log.warn("Token validation failed unexpectedly: {}", e.getMessage());
                 throw new UnauthorizedException("INVALID_TOKEN", "Token inválido");
             }
         });

@@ -19,6 +19,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -82,7 +83,7 @@ public class AuthHandler {
     }
 
     public Mono<ServerResponse> validateToken(ServerRequest request) {
-        String authHeader = request.headers().firstHeader("Authorization");
+        String authHeader = request.headers().firstHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return Mono.error(new UnauthorizedException("MISSING_TOKEN", "Token no proporcionado"));
         }
