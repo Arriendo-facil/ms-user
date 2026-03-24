@@ -7,11 +7,14 @@ import co.com.bancolombia.api.dto.token.TokenResponse;
 import co.com.bancolombia.api.dto.user.LoginRequest;
 import co.com.bancolombia.model.auth.TokenPair;
 import co.com.bancolombia.model.exception.NotFoundException;
+import co.com.bancolombia.model.auth.TokenClaims;
+import co.com.bancolombia.model.exception.UnauthorizedException;
 import co.com.bancolombia.usecase.security.LoginUseCase;
 import co.com.bancolombia.usecase.security.LogoutUseCase;
 import co.com.bancolombia.usecase.security.RefreshTokenUseCase;
 import co.com.bancolombia.usecase.security.RequestPasswordResetUseCase;
 import co.com.bancolombia.usecase.security.ResetPasswordUseCase;
+import co.com.bancolombia.usecase.security.ValidateTokenUseCase;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -30,6 +33,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -41,6 +45,7 @@ class AuthHandlerTest {
     @Mock private RefreshTokenUseCase refreshTokenUseCase;
     @Mock private RequestPasswordResetUseCase requestPasswordResetUseCase;
     @Mock private ResetPasswordUseCase resetPasswordUseCase;
+    @Mock private ValidateTokenUseCase validateTokenUseCase;
     @Mock private Validator validator;
     @Mock private ServerRequest serverRequest;
     @Mock private ServerRequest.Headers headers;
@@ -50,8 +55,8 @@ class AuthHandlerTest {
     @BeforeEach
     void setUp() {
         handler = new AuthHandler(loginUseCase, logoutUseCase, refreshTokenUseCase,
-                requestPasswordResetUseCase, resetPasswordUseCase, validator);
-        when(validator.validate(any())).thenReturn(Set.of());
+                requestPasswordResetUseCase, resetPasswordUseCase, validateTokenUseCase, validator);
+        lenient().when(validator.validate(any())).thenReturn(Set.of());
     }
 
     @Test
@@ -133,6 +138,60 @@ class AuthHandlerTest {
         StepVerifier.create(handler.requestPasswordReset(serverRequest))
                 .assertNext(response -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK))
                 .verifyComplete();
+    }
+
+    @Test
+    void validateToken_withValidBearerToken_returns200() {
+        TokenClaims claims = TokenClaims.builder().userId("user-1").build();
+
+        when(serverRequest.headers()).thenReturn(headers);
+        when(headers.firstHeader("Authorization")).thenReturn("Bearer valid.jwt.token");
+        when(validateTokenUseCase.execute("valid.jwt.token")).thenReturn(Mono.just(claims));
+
+        StepVerifier.create(handler.validateToken(serverRequest))
+                .assertNext(response -> assertThat(response.statusCode()).isEqualTo(HttpStatus.OK))
+                .verifyComplete();
+    }
+
+    @Test
+    void validateToken_withMissingAuthorizationHeader_throwsUnauthorizedException() {
+        when(serverRequest.headers()).thenReturn(headers);
+        when(headers.firstHeader("Authorization")).thenReturn(null);
+
+        StepVerifier.create(handler.validateToken(serverRequest))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(UnauthorizedException.class);
+                    assertThat(((UnauthorizedException) error).getErrorCode()).isEqualTo("MISSING_TOKEN");
+                })
+                .verify();
+    }
+
+    @Test
+    void validateToken_withNonBearerHeader_throwsUnauthorizedException() {
+        when(serverRequest.headers()).thenReturn(headers);
+        when(headers.firstHeader("Authorization")).thenReturn("Basic dXNlcjpwYXNz");
+
+        StepVerifier.create(handler.validateToken(serverRequest))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(UnauthorizedException.class);
+                    assertThat(((UnauthorizedException) error).getErrorCode()).isEqualTo("MISSING_TOKEN");
+                })
+                .verify();
+    }
+
+    @Test
+    void validateToken_withExpiredToken_throwsUnauthorizedException() {
+        when(serverRequest.headers()).thenReturn(headers);
+        when(headers.firstHeader("Authorization")).thenReturn("Bearer expired.token");
+        when(validateTokenUseCase.execute("expired.token"))
+                .thenReturn(Mono.error(new UnauthorizedException("TOKEN_EXPIRED", "Token expirado")));
+
+        StepVerifier.create(handler.validateToken(serverRequest))
+                .expectErrorSatisfies(error -> {
+                    assertThat(error).isInstanceOf(UnauthorizedException.class);
+                    assertThat(((UnauthorizedException) error).getErrorCode()).isEqualTo("TOKEN_EXPIRED");
+                })
+                .verify();
     }
 
     @Test

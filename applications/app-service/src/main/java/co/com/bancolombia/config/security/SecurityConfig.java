@@ -1,5 +1,6 @@
 package co.com.bancolombia.config.security;
 
+import co.com.bancolombia.jwt.JwtProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

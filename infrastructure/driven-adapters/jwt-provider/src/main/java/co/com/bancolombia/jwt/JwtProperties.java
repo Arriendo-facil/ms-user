@@ -1,4 +1,4 @@
-package co.com.bancolombia.config.security;
+package co.com.bancolombia.jwt;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
