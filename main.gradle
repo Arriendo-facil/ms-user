@@ -40,6 +40,7 @@ subprojects {
         annotationProcessor  "org.projectlombok:lombok:${lombokVersion}"
         testCompileOnly  "org.projectlombok:lombok:${lombokVersion}"
         testAnnotationProcessor  "org.projectlombok:lombok:${lombokVersion}"
+
         implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
     }
 

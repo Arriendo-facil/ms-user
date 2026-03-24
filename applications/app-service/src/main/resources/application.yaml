@@ -22,3 +22,21 @@ management:
         enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
+
+security:
+  jwt:
+    access-token-expiration-minutes: 15
+    refresh-token-expiration-days: 7
+
+adapters:
+  postgresql:
+    host: localhost
+    port: 5432
+    database: ms_user
+    schema: public
+    username: postgres
+    password: postgres
+
+springdoc:
+  use-fn-handler-mapping: true
+  packages-to-scan: co.com.bancolombia
