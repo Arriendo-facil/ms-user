@@ -26,7 +26,13 @@ public class UserHandler {
 
     public Mono<ServerResponse> createUser(ServerRequest request) {
         return request.bodyToMono(CreateUserDto.class)
-                .doOnNext(this::validate)
+                .flatMap(dto -> {
+                    Set<ConstraintViolation<Object>> violations = validator.validate(dto);
+                    if (!violations.isEmpty()) {
+                        return Mono.error(new ConstraintViolationException(violations));
+                    }
+                    return Mono.just(dto);
+                })
                 .map(mapper::toUser)
                 .flatMap(createUserUseCase::execute)
                 .flatMap(user -> ServerResponse
@@ -43,12 +49,5 @@ public class UserHandler {
                         .ok()
                         .bodyValue(mapper.toResponse(user))
                 );
-    }
-
-    private void validate(Object dto) {
-        Set<ConstraintViolation<Object>> violations = validator.validate(dto);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
     }
 }

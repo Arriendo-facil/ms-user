@@ -42,8 +42,8 @@ class UserHandlerTest {
             .id("user-1").fullName("María García").email("maria@test.com").build();
 
     private final UserResponse userResponse = new UserResponse(
-            "user-1", "María García", "maria@test.com",
-            null, "Medellín", "Antioquia", "Colombia", false);
+            "user-1", "María García",null, "Medellín", "Antioquia",
+            "Colombia", false);
 
     @BeforeEach
     void setUp() {

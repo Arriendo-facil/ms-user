@@ -17,12 +17,6 @@ public record UserResponse (
         )
         String fullName,
         @Schema(
-                description = "Dirección de email única del usuario. Se usará para autenticación y notificaciones.",
-                example = "maria.garcia@ejemplo.com",
-                requiredMode = Schema.RequiredMode.REQUIRED
-        )
-        String email,
-        @Schema(
             description = "URL de la foto de perfil del usuario (opcional)",
             example = "https://storage.ejemplo.com/fotos/maria-garcia.jpg",
             requiredMode = Schema.RequiredMode.REQUIRED
