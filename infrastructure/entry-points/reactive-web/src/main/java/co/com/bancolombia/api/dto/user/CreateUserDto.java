@@ -41,6 +41,14 @@ public class CreateUserDto {
     )
     private String password;
 
+    @Pattern(regexp = "^\\+?[0-9]{7,15}$", message = "El teléfono debe contener entre 7 y 15 dígitos, con '+' internacional opcional")
+    @Schema(
+        description = "Número de teléfono del usuario. Admite formato internacional (ej. +573001234567). Opcional.",
+        example = "+573001234567",
+        requiredMode = Schema.RequiredMode.NOT_REQUIRED
+    )
+    private String phone;
+
     @URL
     @Schema(
         description = "URL de la foto de perfil del usuario (opcional)",
