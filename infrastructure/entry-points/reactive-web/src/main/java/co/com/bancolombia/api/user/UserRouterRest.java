@@ -25,9 +25,11 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 @Configuration
 public class UserRouterRest {
 
+    private static final String PATH_USER = "/api/v1/user";
+
     @RouterOperations({
         @RouterOperation(
-            path = "/api/user",
+            path = "/api/v1/user",
             method = RequestMethod.POST,
             beanClass = UserHandler.class,
             beanMethod = "createUser",
@@ -81,7 +83,7 @@ public class UserRouterRest {
             )
         ),
         @RouterOperation(
-            path = "/api/user/{id}",
+            path = "/api/v1/user/{id}",
             method = RequestMethod.GET,
             beanClass = UserHandler.class,
             beanMethod = "getUser",
@@ -130,7 +132,7 @@ public class UserRouterRest {
     })
     @Bean
     public RouterFunction<ServerResponse> routerFunction(UserHandler userHandler) {
-        return route(POST("/api/user"), userHandler::createUser)
-                .andRoute(GET("/api/user/{id}").and(accept(MediaType.APPLICATION_JSON)), userHandler::getUser);
+        return route(POST(PATH_USER), userHandler::createUser)
+                .andRoute(GET(PATH_USER.concat("/{id}")).and(accept(MediaType.APPLICATION_JSON)), userHandler::getUser);
     }
 }

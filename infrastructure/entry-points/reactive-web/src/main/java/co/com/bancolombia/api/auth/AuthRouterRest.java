@@ -28,10 +28,11 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 
 @Configuration
 public class AuthRouterRest {
+    private static final String PATH_AUTH = "/api/v1/auth";
 
     @RouterOperations({
         @RouterOperation(
-            path = "/api/auth/login",
+            path = "/api/v1/auth/login",
             method = RequestMethod.POST,
             beanClass = AuthHandler.class,
             beanMethod = "login",
@@ -85,7 +86,7 @@ public class AuthRouterRest {
             )
         ),
         @RouterOperation(
-            path = "/api/auth/refresh",
+            path = "/api/v1/auth/refresh",
             method = RequestMethod.POST,
             beanClass = AuthHandler.class,
             beanMethod = "refresh",
@@ -131,7 +132,7 @@ public class AuthRouterRest {
             )
         ),
         @RouterOperation(
-            path = "/api/auth/logout",
+            path = "/api/v1/auth/logout",
             method = RequestMethod.POST,
             beanClass = AuthHandler.class,
             beanMethod = "logout",
@@ -173,7 +174,7 @@ public class AuthRouterRest {
             )
         ),
         @RouterOperation(
-            path = "/api/auth/password-reset/request",
+            path = "/api/v1/auth/password-reset/request",
             method = RequestMethod.POST,
             beanClass = AuthHandler.class,
             beanMethod = "requestPasswordReset",
@@ -211,7 +212,7 @@ public class AuthRouterRest {
             )
         ),
         @RouterOperation(
-            path = "/api/auth/validate",
+            path = "/api/v1/auth/validate",
             method = RequestMethod.GET,
             beanClass = AuthHandler.class,
             beanMethod = "validateToken",
@@ -243,7 +244,7 @@ public class AuthRouterRest {
             )
         ),
         @RouterOperation(
-            path = "/api/auth/password-reset/confirm",
+            path = "/api/v1/auth/password-reset/confirm",
             method = RequestMethod.POST,
             beanClass = AuthHandler.class,
             beanMethod = "resetPassword",
@@ -283,11 +284,11 @@ public class AuthRouterRest {
     })
     @Bean
     public RouterFunction<ServerResponse> authRouter(AuthHandler authHandler) {
-        return route(POST("/api/auth/login"), authHandler::login)
-                .andRoute(POST("/api/auth/refresh"), authHandler::refresh)
-                .andRoute(POST("/api/auth/logout"), authHandler::logout)
-                .andRoute(GET("/api/auth/validate"), authHandler::validateToken)
-                .andRoute(POST("/api/auth/password-reset/request"), authHandler::requestPasswordReset)
-                .andRoute(POST("/api/auth/password-reset/confirm"), authHandler::resetPassword);
+        return route(POST(PATH_AUTH.concat("/login")), authHandler::login)
+                .andRoute(POST(PATH_AUTH.concat("/refresh")), authHandler::refresh)
+                .andRoute(POST(PATH_AUTH.concat("/logout")), authHandler::logout)
+                .andRoute(GET(PATH_AUTH.concat("/validate")), authHandler::validateToken)
+                .andRoute(POST(PATH_AUTH.concat("/password-reset/request")), authHandler::requestPasswordReset)
+                .andRoute(POST(PATH_AUTH.concat("/password-reset/confirm")), authHandler::resetPassword);
     }
 }
